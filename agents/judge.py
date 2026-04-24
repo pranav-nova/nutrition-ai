@@ -1,28 +1,25 @@
 def judge_output(output):
-    prompt = f"""
-You are an evaluator.
+    score = 0
+    feedback = []
 
-Evaluate this nutrition explanation:
+    text = output.lower()
 
-Criteria:
-1. Accuracy (0-10)
-2. Clarity (0-10)
-3. Practical usefulness (0-10)
+    if "ingredient" in text:
+        score += 1
+    else:
+        feedback.append("Missing ingredient explanation")
 
-Return in format:
+    if "health" in text:
+        score += 1
+    else:
+        feedback.append("Missing health impact")
 
-Accuracy: X/10  
-Clarity: X/10  
-Usefulness: X/10  
-Total: X/30  
-Feedback: short explanation
+    if "verdict" in text:
+        score += 1
+    else:
+        feedback.append("Missing final verdict")
 
-Text:
-{output}
-"""
-    res = groq_client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    return res.choices[0].message.content
+    return {
+        "score": f"{score}/3",
+        "feedback": feedback if feedback else ["Good explanation"]
+    }
