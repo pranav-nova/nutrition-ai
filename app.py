@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+import re
 from groq import Groq
 from dotenv import load_dotenv
 
@@ -19,6 +20,7 @@ def get_api_key():
     return key
 
 api_key = get_api_key()
+
 if not api_key:
     st.error("❌ GROQ_API_KEY not found")
     st.stop()
@@ -27,10 +29,11 @@ client = Groq(api_key=api_key)
 
 # ---------- ANALYSIS ----------
 def generate_analysis(input_text):
+
     prompt = f"""
 You are a professional nutrition expert.
 
-Analyze the following food label:
+Analyze this food label:
 
 {input_text}
 
@@ -43,22 +46,44 @@ HEALTH IMPACT:
 ...
 
 SCORE:
-(number only)
+Return ONLY a number between 0 and 100
 
 FINAL VERDICT:
 (Good / Moderate / Avoid)
 """
+
     res = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.4
     )
+
     return res.choices[0].message.content
+
+
+# ---------- PARSER (FIXED) ----------
+def parse_output(result):
+    try:
+        ingredient = result.split("INGREDIENT BREAKDOWN:")[1].split("HEALTH IMPACT:")[0].strip()
+        health = result.split("HEALTH IMPACT:")[1].split("SCORE:")[0].strip()
+
+        # ✅ FIXED SCORE USING REGEX
+        score_match = re.search(r"\b\d{1,3}\b", result)
+        score = score_match.group() if score_match else "N/A"
+
+        verdict = result.split("FINAL VERDICT:")[1].strip()
+
+        return ingredient, health, score, verdict
+
+    except:
+        return result, "", "N/A", "N/A"
+
 
 # ---------- SIMPLE JUDGE ----------
 def judge_output(output):
     score = 0
     feedback = []
+
     text = output.lower()
 
     if "ingredient" in text:
@@ -81,29 +106,15 @@ def judge_output(output):
         "feedback": feedback if feedback else ["Good explanation"]
     }
 
-# ---------- PARSER ----------
-def parse_output(result):
-    try:
-        parts = result.split("SCORE:")
-        top = parts[0]
-        score = parts[1].split("\n")[0].strip()
-
-        ingredient = top.split("INGREDIENT BREAKDOWN:")[1].split("HEALTH IMPACT:")[0].strip()
-        health = top.split("HEALTH IMPACT:")[1].strip()
-
-        verdict = result.split("FINAL VERDICT:")[1].strip()
-
-        return ingredient, health, score, verdict
-    except:
-        return result, "", "N/A", "N/A"
 
 # ---------- UI ----------
 st.title("🥗 Nutrition AI Analyzer")
 st.caption("Paste full ingredients + nutrition label below.")
 
-# ONE INPUT BOX
+# ✅ SINGLE INPUT BOX
 user_input = st.text_area("Food Label Input")
 
+# ---------- BUTTON ----------
 if st.button("Analyze"):
 
     if not user_input:
@@ -117,7 +128,7 @@ if st.button("Analyze"):
 
         st.success("Analysis Complete ✅")
 
-        # ---------- PROFESSIONAL OUTPUT ----------
+        # ---------- OUTPUT ----------
         st.markdown("### 🧪 Ingredient Breakdown")
         st.write(ingredient)
 
@@ -125,7 +136,7 @@ if st.button("Analyze"):
         st.write(health)
 
         st.markdown("### 📊 Nutrition Score")
-        st.metric(label="Score", value=f"{score}/100")
+        st.metric("Score", f"{score} / 100")
 
         st.markdown("### 🏁 Final Verdict")
         if "good" in verdict.lower():
