@@ -1,4 +1,6 @@
-def judge_output(output):
+# agents/judge.py
+
+def judge_output(output, client):
     prompt = f"""
 You are an evaluator.
 
