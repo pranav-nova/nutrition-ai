@@ -1,55 +1,135 @@
 import streamlit as st
-import os
-from groq import Groq
+from agents.researcher import research_ingredients
+from agents.analyst import analyze_nutrition
+from agents.writer import generate_explanation
 
-st.set_page_config(page_title="Nutrition AI", page_icon="🥗", layout="centered")
+st.set_page_config(page_title="Nutrition AI", layout="centered")
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY") or st.secrets["GROQ_API_KEY"])
+# 🎨 FULL POLISHED UI
+st.markdown("""
+<style>
 
-# ---------- SIMPLE UI ----------
-st.title("🥗 Nutrition AI")
+/* Remove top spacing */
+.block-container {
+    padding-top: 0rem;
+}
 
-st.markdown("Analyze food ingredients and get health insights.")
+/* Hide header/footer */
+header {visibility: hidden;}
+footer {visibility: hidden;}
+
+/* Background */
+.stApp {
+    background: radial-gradient(circle at center, #1e3a8a, #020617);
+    color: white;
+}
+
+/* Glass card */
+.card {
+    background: rgba(255,255,255,0.08);
+    padding: 30px;
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    width: 420px;
+    margin: auto;
+    margin-top: 40px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.6);
+}
+
+/* Title */
+.title {
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Button */
+.stButton>button {
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    color: white;
+    border-radius: 10px;
+    width: 100%;
+    padding: 10px;
+    font-weight: bold;
+}
+
+/* Result card */
+.result-card {
+    background: rgba(0,0,0,0.4);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+
+/* Badge */
+.badge {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.good {background: #16a34a;}
+.moderate {background: #eab308;}
+.bad {background: #dc2626;}
+
+</style>
+""", unsafe_allow_html=True)
+
+# 🧊 UI START
+st.markdown('<div class="card">', unsafe_allow_html=True)
+
+st.markdown('<div class="title">🥗 Nutrition AI</div>', unsafe_allow_html=True)
 
 ingredients = st.text_input("Ingredients (comma separated)")
 calories = st.number_input("Calories", min_value=0)
-sugar = st.number_input("Sugar (g)", min_value=0.0)
-fat = st.number_input("Fat (g)", min_value=0.0)
+sugar = st.number_input("Sugar (g)", min_value=0)
+fat = st.number_input("Fat (g)", min_value=0)
 
-# ---------- BUTTON ----------
+# 🔍 BUTTON
 if st.button("Analyze"):
 
     if not ingredients:
         st.warning("Please enter ingredients")
     else:
+        ingredient_list = [i.strip() for i in ingredients.split(",")]
+
         with st.spinner("Analyzing..."):
+            research = research_ingredients(ingredient_list)
 
-            prompt = f"""
-Analyze this food:
+            nutrition_data = {
+                "calories": calories,
+                "sugar": sugar,
+                "fat": fat
+            }
 
-Ingredients: {ingredients}
-Calories: {calories}
-Sugar: {sugar}
-Fat: {fat}
+            analysis = analyze_nutrition(nutrition_data)
 
-Give:
-1. Ingredient explanation
-2. Health impact
-3. Score out of 100
-4. Final verdict (Good/Moderate/Avoid)
-"""
+            explanation = generate_explanation(research, analysis)
 
-            try:
-                res = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
-                    messages=[{"role": "user", "content": prompt}],
-                )
+        # 🎯 Verdict detection
+        verdict = "Moderate"
+        if "avoid" in explanation.lower():
+            verdict = "Avoid"
+        elif "good" in explanation.lower():
+            verdict = "Good"
 
-                output = res.choices[0].message.content
+        # 🎨 RESULT DISPLAY
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
 
-                st.success("Analysis Complete ✅")
+        st.markdown("### 📊 Analysis Result")
+        st.write(explanation)
 
-                st.write(output)
+        # Badge
+        if verdict == "Good":
+            st.markdown('<div class="badge good">✔ Good</div>', unsafe_allow_html=True)
+        elif verdict == "Avoid":
+            st.markdown('<div class="badge bad">✖ Avoid</div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="badge moderate">⚠ Moderate</div>', unsafe_allow_html=True)
 
-            except Exception as e:
-                st.error(f"Error: {e}")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
