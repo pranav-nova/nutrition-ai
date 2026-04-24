@@ -3,7 +3,7 @@ import os
 import re
 from groq import Groq
 from dotenv import load_dotenv
-from agents.judge import judge_output   # 👈 import judge agent
+from agents.judge import judge_output   # judge agent
 
 # ---------- LOAD ENV ----------
 load_dotenv()
@@ -28,7 +28,7 @@ if not api_key:
 
 client = Groq(api_key=api_key)
 
-# ---------- ANALYSIS ----------
+# ---------- ANALYSIS AGENT ----------
 def generate_analysis(input_text):
 
     prompt = f"""
@@ -48,9 +48,6 @@ HEALTH IMPACT:
 
 SCORE:
 Return ONLY a number between 0 and 100
-
-FINAL VERDICT:
-(Good / Moderate / Avoid)
 """
 
     res = client.chat.completions.create(
@@ -72,12 +69,10 @@ def parse_output(result):
         score_match = re.search(r"\b\d{1,3}\b", result)
         score = score_match.group() if score_match else "N/A"
 
-        verdict = result.split("FINAL VERDICT:")[1].strip()
-
-        return ingredient, health, score, verdict
+        return ingredient, health, score
 
     except:
-        return result, "", "N/A", "N/A"
+        return result, "", "N/A"
 
 
 # ---------- UI ----------
@@ -96,10 +91,10 @@ if st.button("Analyze"):
         with st.spinner("Analyzing..."):
             result = generate_analysis(user_input)
 
-        ingredient, health, score, verdict = parse_output(result)
+        ingredient, health, score = parse_output(result)
 
-        # 👇 LLM Judge (from separate agent)
-        with st.spinner("Evaluating quality..."):
+        # 👇 JUDGE AGENT (Final conclusion here)
+        with st.spinner("Evaluating quality & conclusion..."):
             judge = judge_output(result, client)
 
         st.success("Analysis Complete ✅")
@@ -114,16 +109,8 @@ if st.button("Analyze"):
         st.markdown("### 📊 Nutrition Score")
         st.metric("Score", f"{score} / 100")
 
-        st.markdown("### 🏁 Final Verdict")
-        if "good" in verdict.lower():
-            st.success(verdict)
-        elif "moderate" in verdict.lower():
-            st.warning(verdict)
-        else:
-            st.error(verdict)
-
         st.markdown("---")
 
-        # ---------- JUDGE OUTPUT ----------
-        st.markdown("### 🧠 Evaluation (LLM Judge)")
+        # ---------- FINAL DECISION BY JUDGE ----------
+        st.markdown("### 🧠 Evaluation & Final Conclusion")
         st.info(judge)

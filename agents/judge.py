@@ -2,15 +2,18 @@
 
 def judge_output(output, client):
     prompt = f"""
-You are an evaluator.
+You are an expert evaluator.
 
-Evaluate the following nutrition analysis using this rubric:
+You will:
+1. Evaluate the quality of the analysis
+2. Compare ingredient breakdown and health impact
+3. Give a FINAL CONCLUSION
 
-Criteria (each out of 25):
-1. Accuracy (0-25)
-2. Completeness (0-25)
-3. Clarity (0-25)
-4. Practical Usefulness (0-25)
+Rubric (each out of 25):
+- Accuracy
+- Completeness
+- Clarity
+- Practical Usefulness
 
 Total score out of 100.
 
@@ -21,6 +24,9 @@ Completeness: X/25
 Clarity: X/25  
 Usefulness: X/25  
 Total: X/100  
+
+Final Conclusion:
+(Give a clear final decision: Good / Moderate / Avoid with reasoning)
 
 Feedback:
 Short explanation
