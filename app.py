@@ -9,7 +9,6 @@ load_dotenv()
 
 st.set_page_config(page_title="Nutrition AI", page_icon="🥗", layout="centered")
 
-# ── Global styles ──────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap');
@@ -18,16 +17,13 @@ html, body, [class*="css"] {
     font-family: 'DM Sans', sans-serif;
 }
 
-/* Hide default Streamlit chrome */
 #MainMenu, footer, header { visibility: hidden; }
 
-/* Page background */
 section.main > div {
-    background: #f7faf4;
+    background: #0a1612;
     padding-top: 0 !important;
 }
 
-/* ── Hero banner ── */
 .hero {
     background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #40916c 100%);
     border-radius: 20px;
@@ -62,7 +58,6 @@ section.main > div {
     margin: 0;
 }
 
-/* ── Pill badges ── */
 .badge-row {
     display: flex;
     gap: 8px;
@@ -80,23 +75,21 @@ section.main > div {
     font-weight: 500;
 }
 
-/* ── Input card ── */
 .input-card {
-    background: white;
+    background: #112218;
     border-radius: 16px;
     padding: 1.75rem;
-    border: 1px solid #d8eddf;
-    box-shadow: 0 2px 16px rgba(45, 106, 79, 0.07);
+    border: 1px solid #2d6a4f;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.3);
     margin-bottom: 1.5rem;
 }
 .input-label {
     font-weight: 600;
-    color: #1b4332;
+    color: #74c69d;
     font-size: 0.95rem;
     margin-bottom: 0.5rem;
 }
 
-/* ── Section headers ── */
 .section-header {
     display: flex;
     align-items: center;
@@ -113,32 +106,30 @@ section.main > div {
 .section-title {
     font-family: 'Playfair Display', serif;
     font-size: 1.25rem;
-    color: #1b4332;
+    color: #95d5b2;
     margin: 0;
 }
 
-/* ── Result cards ── */
 .result-card {
-    background: white;
+    background: #112218;
     border-radius: 14px;
     padding: 1.25rem 1.5rem;
-    border: 1px solid #d8eddf;
-    box-shadow: 0 1px 8px rgba(45,106,79,0.06);
+    border: 1px solid #2d6a4f;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.25);
     line-height: 1.75;
-    color: #2d3a2e;
+    color: #d8f3dc;
     font-size: 0.93rem;
 }
 
-/* ── Score ring wrapper ── */
 .score-wrapper {
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    background: white;
+    background: #112218;
     border-radius: 14px;
     padding: 1.25rem 1.5rem;
-    border: 1px solid #d8eddf;
-    box-shadow: 0 1px 8px rgba(45,106,79,0.06);
+    border: 1px solid #2d6a4f;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.25);
 }
 .score-label {
     font-size: 0.82rem;
@@ -151,7 +142,7 @@ section.main > div {
 .score-value {
     font-family: 'Playfair Display', serif;
     font-size: 2.6rem;
-    color: #1b4332;
+    color: #d8f3dc;
     line-height: 1;
 }
 .score-sub {
@@ -160,28 +151,26 @@ section.main > div {
     margin-top: 4px;
 }
 
-/* ── Divider ── */
 .fancy-divider {
     text-align: center;
     margin: 2rem 0;
-    color: #95d5b2;
+    color: #2d6a4f;
     font-size: 1.4rem;
     letter-spacing: 0.5rem;
 }
 
-/* ── Final verdict card ── */
 .verdict-card {
-    background: linear-gradient(160deg, #081c15 0%, #1b4332 100%);
+    background: linear-gradient(160deg, #061009 0%, #112218 100%);
     border-radius: 16px;
     padding: 2rem;
     border: 1px solid #2d6a4f;
     border-left: 5px solid #52b788;
-    font-family: 'DM Mono', 'Courier New', monospace;
+    font-family: 'Courier New', monospace;
     color: #d8f3dc;
     white-space: pre-wrap;
     line-height: 1.85;
     font-size: 0.875rem;
-    box-shadow: 0 8px 32px rgba(27, 67, 50, 0.25);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     position: relative;
     overflow: hidden;
 }
@@ -190,29 +179,27 @@ section.main > div {
     position: absolute;
     top: 1rem; right: 1.25rem;
     font-size: 1.5rem;
-    color: rgba(82,183,136,0.25);
+    color: rgba(82,183,136,0.2);
 }
 
-/* ── Info strip ── */
 .info-strip {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     margin-top: 1.5rem;
     flex-wrap: wrap;
 }
 .info-chip {
-    background: #ebf5ee;
-    border: 1px solid #b7e4c7;
+    background: #112218;
+    border: 1px solid #2d6a4f;
     border-radius: 10px;
     padding: 8px 14px;
     font-size: 0.8rem;
-    color: #1b4332;
+    color: #74c69d;
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
-/* ── Streamlit button override ── */
 div.stButton > button {
     background: linear-gradient(135deg, #2d6a4f, #40916c) !important;
     color: white !important;
@@ -230,17 +217,30 @@ div.stButton > button:hover {
     opacity: 0.88 !important;
 }
 
-/* ── Text area override ── */
 textarea {
     border-radius: 10px !important;
-    border: 1.5px solid #b7e4c7 !important;
+    border: 1.5px solid #40916c !important;
     font-family: 'DM Sans', sans-serif !important;
     font-size: 0.92rem !important;
-    background: #f7faf4 !important;
+    background: #1a2e22 !important;
+    color: #d8f3dc !important;
+    caret-color: #52b788 !important;
 }
 textarea:focus {
-    border-color: #40916c !important;
-    box-shadow: 0 0 0 3px rgba(64,145,108,0.15) !important;
+    border-color: #52b788 !important;
+    box-shadow: 0 0 0 3px rgba(82,183,136,0.2) !important;
+}
+textarea::placeholder {
+    color: #52796f !important;
+    opacity: 1 !important;
+}
+
+/* Success / warning / error box dark theme */
+div[data-testid="stAlert"] {
+    background: #112218 !important;
+    border: 1px solid #2d6a4f !important;
+    color: #d8f3dc !important;
+    border-radius: 10px !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -262,7 +262,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ── How it works strip ─────────────────────────────────────────────────────────
+# ── How it works ───────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="info-strip">
     <div class="info-chip">🥗 Paste any food label</div>
@@ -276,15 +276,14 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 
 # ── Input ──────────────────────────────────────────────────────────────────────
-st.markdown("""
-<div class="input-label">📋 Paste your food label / ingredients list below</div>
-""", unsafe_allow_html=True)
+st.markdown('<div class="input-label">📋 Paste your food label / ingredients list below</div>',
+            unsafe_allow_html=True)
 
 user_input = st.text_area(
     label="food_label",
     label_visibility="collapsed",
     placeholder="e.g.  Ingredients: Enriched flour, sugar, palm oil, cocoa, soy lecithin...\nCalories: 210  |  Fat: 11g  |  Sodium: 140mg  |  Sugar: 12g",
-    height=160,
+    height=180,
 )
 
 col1, col2, col3 = st.columns([1, 2, 1])
@@ -292,7 +291,7 @@ with col2:
     analyze_btn = st.button("🔍  Analyze Now")
 
 
-# ── Analysis ───────────────────────────────────────────────────────────────────
+# ── API setup ──────────────────────────────────────────────────────────────────
 def get_api_key():
     key = os.getenv("GROQ_API_KEY")
     if not key:
@@ -309,6 +308,8 @@ if not api_key:
 
 client = Groq(api_key=api_key)
 
+
+# ── Core functions ─────────────────────────────────────────────────────────────
 def generate_analysis(input_text):
     prompt = f"""
 You are a professional nutrition expert.
@@ -329,6 +330,7 @@ Return ONLY a number between 0 and 100
     )
     return res.choices[0].message.content
 
+
 def parse_output(result):
     try:
         ingredient = result.split("INGREDIENT BREAKDOWN:")[1].split("HEALTH IMPACT:")[0].strip()
@@ -339,6 +341,7 @@ def parse_output(result):
     except:
         return result, "", "N/A"
 
+
 def score_color(score_str):
     try:
         s = int(score_str)
@@ -346,8 +349,10 @@ def score_color(score_str):
         if s >= 40: return "#f4a261", "Moderate", "🟡"
         return "#e63946", "Poor", "🔴"
     except:
-        return "#95d5b2", "N/A", "⚪"
+        return "#74c69d", "N/A", "⚪"
 
+
+# ── Results ────────────────────────────────────────────────────────────────────
 if analyze_btn:
     if not user_input.strip():
         st.warning("⚠️ Please enter food label data before analyzing.")
@@ -362,60 +367,69 @@ if analyze_btn:
 
         st.success("✅ Analysis complete!")
 
-        # ── Ingredient Breakdown ──
+        # Ingredient Breakdown
         st.markdown("""
         <div class="section-header">
-            <div class="section-icon" style="background:#ebf5ee;">🧪</div>
+            <div class="section-icon" style="background:#1b4332;">🧪</div>
             <h3 class="section-title">Ingredient Breakdown</h3>
         </div>
         """, unsafe_allow_html=True)
         st.markdown(f'<div class="result-card">{ingredient}</div>', unsafe_allow_html=True)
 
-        # ── Health Impact ──
+        # Health Impact
         st.markdown("""
         <div class="section-header">
-            <div class="section-icon" style="background:#fff4e6;">⚡</div>
+            <div class="section-icon" style="background:#1b4332;">⚡</div>
             <h3 class="section-title">Health Impact</h3>
         </div>
         """, unsafe_allow_html=True)
         st.markdown(f'<div class="result-card">{health}</div>', unsafe_allow_html=True)
 
-        # ── Score ──
+        # Score ring
         ring_color, rating_label, rating_icon = score_color(score)
         st.markdown("""
         <div class="section-header">
-            <div class="section-icon" style="background:#e8f4fd;">📊</div>
+            <div class="section-icon" style="background:#1b4332;">📊</div>
             <h3 class="section-title">Nutrition Score</h3>
         </div>
         """, unsafe_allow_html=True)
 
+        try:
+            score_int = int(score)
+        except:
+            score_int = 0
+
+        circumference = 2 * 3.14159 * 34
+        offset = circumference * (1 - score_int / 100)
+
         st.markdown(f"""
         <div class="score-wrapper">
-            <svg width="80" height="80" viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="34" fill="none" stroke="#e8f5e9" stroke-width="8"/>
+            <svg width="90" height="90" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="#1b4332" stroke-width="8"/>
               <circle cx="40" cy="40" r="34" fill="none" stroke="{ring_color}" stroke-width="8"
-                stroke-dasharray="{2*3.14159*34}" 
-                stroke-dashoffset="{2*3.14159*34 * (1 - (int(score) if score != 'N/A' else 0)/100)}"
+                stroke-dasharray="{circumference:.2f}"
+                stroke-dashoffset="{offset:.2f}"
                 stroke-linecap="round"
                 transform="rotate(-90 40 40)"/>
-              <text x="40" y="44" text-anchor="middle" font-size="18" font-weight="700" fill="{ring_color}" font-family="DM Sans">{score}</text>
+              <text x="40" y="45" text-anchor="middle" font-size="16" font-weight="700"
+                fill="{ring_color}" font-family="DM Sans, sans-serif">{score}</text>
             </svg>
             <div>
                 <div class="score-label">Overall Score</div>
-                <div class="score-value">{score}<span style="font-size:1.2rem;color:#74c69d;"> / 100</span></div>
+                <div class="score-value">{score}<span style="font-size:1.2rem;color:#52796f;"> / 100</span></div>
                 <div class="score-sub">{rating_icon} {rating_label} nutritional profile</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        # ── Divider ──
+        # Divider
         st.markdown('<div class="fancy-divider">🌿 · · · 🌿</div>', unsafe_allow_html=True)
 
-        # ── Final Verdict ──
+        # Final Verdict
         st.markdown("""
         <div class="section-header">
             <div class="section-icon" style="background:#1b4332;">🧠</div>
-            <h3 class="section-title" style="color:#1b4332;">Final Verdict</h3>
+            <h3 class="section-title">Final Verdict</h3>
         </div>
         """, unsafe_allow_html=True)
 
@@ -424,10 +438,10 @@ if analyze_btn:
             unsafe_allow_html=True,
         )
 
-        # ── Footer ──
+        # Footer
         st.markdown("""
         <div style="text-align:center; margin-top:2.5rem; padding-top:1.5rem;
-                    border-top:1px solid #d8eddf; color:#74c69d; font-size:0.82rem;">
-            🥗 Nutrition AI · Powered by LLaMA 3.3 · For informational purposes only
+                    border-top:1px solid #1b4332; color:#2d6a4f; font-size:0.82rem;">
+            🥗 Nutrition AI &nbsp;·&nbsp; Powered by LLaMA 3.3 &nbsp;·&nbsp; For informational purposes only
         </div>
         """, unsafe_allow_html=True)
