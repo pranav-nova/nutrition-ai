@@ -80,7 +80,7 @@ Give:
         return f"Error: {e}"
 
 # ---------- UI ----------
-st.title("🥗 Nutrition AI")
+st.title("🥗 Nutrition Label Explainer")
 
 st.markdown("Analyze ingredients and understand health impact.")
 
