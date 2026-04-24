@@ -1,5 +1,3 @@
-Here’s a **professional, high-quality README.md** tailored for your project.
-You can **copy-paste this directly into your repo**.
 
 ---
 
@@ -63,7 +61,7 @@ This is a **multi-agent AI system**:
 
 ## 🏗️ Architecture
 
-```
+
 
 User Input (Streamlit UI)
 ↓
@@ -92,24 +90,33 @@ Displayed on UI
 | Deployment | Streamlit Cloud |
 | Architecture | Multi-Agent System |
 
----
 
 ## 📦 Project Structure
 
-```
 
-nutrition-ai/
-│
-├── app.py                 # Main application
-├── requirements.txt       # Dependencies
-├── .env                   # API keys (local only)
-│
-└── agents/
-└── judge.py           # LLM Judge agent
+🧠 ROLE OF EACH FOLDER
+🔹 agents/
+analyst.py → Generates analysis
+judge.py → Evaluates + gives final conclusion
 
-````
+👉 Shows multi-agent system clearly
 
----
+🔹 utils/
+parser.py → Extracts:
+ingredient breakdown
+health impact
+score
+
+👉 Keeps app.py clean
+
+🔹 config/
+settings.py → handles API keys
+
+👉 Professional practice
+
+🔹 assets/
+logos, images (optional UI polish)
+
 
 ## 🔌 Installation & Setup
 
@@ -236,8 +243,8 @@ Sugar: 2g
 
 ## 👥 Team
 
-* **Your Name**
-* **Partner Name**
+* **Pranav Paunikar Roll NO:05**
+* **Vaibhav Dhanore Roll NO:27**
 
 ---
 
