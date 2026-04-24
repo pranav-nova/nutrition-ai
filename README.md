@@ -1,5 +1,11 @@
+Here’s a **professional, high-quality README.md** tailored for your project.
+You can **copy-paste this directly into your repo**.
+
+---
+
 # 📄 🚀 `README.md`
 
+```markdown
 # 🥗 Nutrition AI Agent
 
 An end-to-end **AI-powered nutrition label analyzer** that interprets food ingredients and nutrition facts, and evaluates the health impact using a **multi-agent architecture with LLM-as-Judge**.
@@ -57,6 +63,7 @@ This is a **multi-agent AI system**:
 
 ## 🏗️ Architecture
 
+```
 
 User Input (Streamlit UI)
 ↓
@@ -70,6 +77,9 @@ Final Evaluation + Conclusion
 ↓
 Displayed on UI
 
+```
+
+---
 
 ## 🛠️ Tech Stack
 
@@ -86,7 +96,7 @@ Displayed on UI
 
 ## 📦 Project Structure
 
-
+```
 
 nutrition-ai/
 │
@@ -97,43 +107,53 @@ nutrition-ai/
 └── agents/
 └── judge.py           # LLM Judge agent
 
+````
 
+---
 
 ## 🔌 Installation & Setup
 
 ### 1️⃣ Clone the Repository
 
-bash
+```bash
 git clone https://github.com/your-username/nutrition-ai.git
 cd nutrition-ai
+````
 
+---
 
 ### 2️⃣ Create Virtual Environment
 
-``bash
+```bash
 python -m venv venv
 venv\Scripts\activate   # Windows
+```
 
+---
 
 ### 3️⃣ Install Dependencies
 
-``bash
+```bash
 pip install -r requirements.txt
---
+```
+
+---
 
 ### 4️⃣ Add API Key
 
 Create a `.env` file:
 
-`
+```
 GROQ_API_KEY=your_api_key_here
+```
 
+---
 
 ### 5️⃣ Run the App
 
-``bash
+```bash
 python -m streamlit run app.py
-
+```
 
 ---
 
@@ -145,11 +165,11 @@ This app is deployed on **Streamlit Cloud**.
 
 In Streamlit Cloud:
 
-``toml
+```toml
 GROQ_API_KEY = "your_api_key"
+```
 
-
--
+---
 
 ## 📊 LLM-as-Judge Rubric
 
