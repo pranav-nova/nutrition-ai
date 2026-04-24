@@ -1,135 +1,103 @@
 import streamlit as st
-from agents.researcher import research_ingredients
-from agents.analyst import analyze_nutrition
-from agents.writer import generate_explanation
+import os
+from groq import Groq
+from tavily import TavilyClient
+from dotenv import load_dotenv
 
-st.set_page_config(page_title="Nutrition AI", layout="centered")
+# ---------- LOAD ENV ----------
+load_dotenv()
 
-# 🎨 FULL POLISHED UI
-st.markdown("""
-<style>
+st.set_page_config(page_title="Nutrition AI", page_icon="🥗", layout="centered")
 
-/* Remove top spacing */
-.block-container {
-    padding-top: 0rem;
-}
+# ---------- SAFE API KEYS ----------
+def get_key(name):
+    val = os.getenv(name)
+    if not val:
+        try:
+            val = st.secrets[name]
+        except:
+            return None
+    return val
 
-/* Hide header/footer */
-header {visibility: hidden;}
-footer {visibility: hidden;}
+GROQ_API_KEY = get_key("GROQ_API_KEY")
+TAVILY_API_KEY = get_key("TAVILY_API_KEY")
 
-/* Background */
-.stApp {
-    background: radial-gradient(circle at center, #1e3a8a, #020617);
-    color: white;
-}
+if not GROQ_API_KEY:
+    st.error("Missing GROQ_API_KEY")
+    st.stop()
 
-/* Glass card */
-.card {
-    background: rgba(255,255,255,0.08);
-    padding: 30px;
-    border-radius: 20px;
-    backdrop-filter: blur(20px);
-    width: 420px;
-    margin: auto;
-    margin-top: 40px;
-    box-shadow: 0 0 40px rgba(0,0,0,0.6);
-}
+if not TAVILY_API_KEY:
+    st.warning("TAVILY_API_KEY not found (ingredient research will be basic)")
 
-/* Title */
-.title {
-    text-align: center;
-    font-size: 30px;
-    font-weight: bold;
-    margin-bottom: 20px;
-}
+# ---------- CLIENTS ----------
+groq_client = Groq(api_key=GROQ_API_KEY)
 
-/* Button */
-.stButton>button {
-    background: linear-gradient(90deg, #00c6ff, #0072ff);
-    color: white;
-    border-radius: 10px;
-    width: 100%;
-    padding: 10px;
-    font-weight: bold;
-}
+tavily_client = None
+if TAVILY_API_KEY:
+    tavily_client = TavilyClient(api_key=TAVILY_API_KEY)
 
-/* Result card */
-.result-card {
-    background: rgba(0,0,0,0.4);
-    padding: 15px;
-    border-radius: 10px;
-    margin-top: 15px;
-}
+# ---------- FUNCTIONS ----------
+def research_ingredient(name):
+    if not tavily_client:
+        return f"{name}: general food ingredient."
 
-/* Badge */
-.badge {
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-weight: bold;
-    display: inline-block;
-    margin-top: 10px;
-}
+    try:
+        res = tavily_client.search(query=name, search_depth="basic")
+        return res["results"][0]["content"]
+    except:
+        return f"{name}: info not found."
 
-.good {background: #16a34a;}
-.moderate {background: #eab308;}
-.bad {background: #dc2626;}
+def generate_analysis(ingredients, calories, sugar, fat):
 
-</style>
-""", unsafe_allow_html=True)
+    research_text = "\n".join([research_ingredient(i) for i in ingredients])
 
-# 🧊 UI START
-st.markdown('<div class="card">', unsafe_allow_html=True)
+    prompt = f"""
+Analyze this food:
 
-st.markdown('<div class="title">🥗 Nutrition AI</div>', unsafe_allow_html=True)
+Ingredients: {", ".join(ingredients)}
+Calories: {calories}
+Sugar: {sugar}
+Fat: {fat}
 
-ingredients = st.text_input("Ingredients (comma separated)")
+Ingredient info:
+{research_text}
+
+Give:
+1. Ingredient Breakdown
+2. Health Impact
+3. Score (0-100)
+4. Final Verdict (Good / Moderate / Avoid)
+"""
+
+    try:
+        res = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4
+        )
+        return res.choices[0].message.content
+    except Exception as e:
+        return f"Error: {e}"
+
+# ---------- UI ----------
+st.title("🥗 Nutrition AI")
+
+st.markdown("Analyze ingredients and understand health impact.")
+
+ingredients_input = st.text_input("Ingredients (comma separated)")
 calories = st.number_input("Calories", min_value=0)
-sugar = st.number_input("Sugar (g)", min_value=0)
-fat = st.number_input("Fat (g)", min_value=0)
+sugar = st.number_input("Sugar (g)", min_value=0.0)
+fat = st.number_input("Fat (g)", min_value=0.0)
 
-# 🔍 BUTTON
 if st.button("Analyze"):
 
-    if not ingredients:
+    if not ingredients_input:
         st.warning("Please enter ingredients")
     else:
-        ingredient_list = [i.strip() for i in ingredients.split(",")]
+        ingredients = [i.strip() for i in ingredients_input.split(",")]
 
         with st.spinner("Analyzing..."):
-            research = research_ingredients(ingredient_list)
+            result = generate_analysis(ingredients, calories, sugar, fat)
 
-            nutrition_data = {
-                "calories": calories,
-                "sugar": sugar,
-                "fat": fat
-            }
-
-            analysis = analyze_nutrition(nutrition_data)
-
-            explanation = generate_explanation(research, analysis)
-
-        # 🎯 Verdict detection
-        verdict = "Moderate"
-        if "avoid" in explanation.lower():
-            verdict = "Avoid"
-        elif "good" in explanation.lower():
-            verdict = "Good"
-
-        # 🎨 RESULT DISPLAY
-        st.markdown('<div class="result-card">', unsafe_allow_html=True)
-
-        st.markdown("### 📊 Analysis Result")
-        st.write(explanation)
-
-        # Badge
-        if verdict == "Good":
-            st.markdown('<div class="badge good">✔ Good</div>', unsafe_allow_html=True)
-        elif verdict == "Avoid":
-            st.markdown('<div class="badge bad">✖ Avoid</div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div class="badge moderate">⚠ Moderate</div>', unsafe_allow_html=True)
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
+        st.success("Analysis Complete ✅")
+        st.write(result)
