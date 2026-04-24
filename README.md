@@ -77,7 +77,8 @@ Displayed on UI
 
 ```
 
----
+<img width="1024" height="556" alt="WhatsApp Image 2026-04-24 at 18 20 54" src="https://github.com/user-attachments/assets/52257f31-33c9-4a64-b7d0-aec835f80723" />
+
 
 ## 🛠️ Tech Stack
 
