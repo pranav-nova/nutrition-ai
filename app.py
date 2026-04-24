@@ -3,6 +3,7 @@ import os
 import re
 from groq import Groq
 from dotenv import load_dotenv
+from agents.judge import judge_output   # 👈 import judge agent
 
 # ---------- LOAD ENV ----------
 load_dotenv()
@@ -61,13 +62,13 @@ FINAL VERDICT:
     return res.choices[0].message.content
 
 
-# ---------- PARSER (FIXED) ----------
+# ---------- PARSER ----------
 def parse_output(result):
     try:
         ingredient = result.split("INGREDIENT BREAKDOWN:")[1].split("HEALTH IMPACT:")[0].strip()
         health = result.split("HEALTH IMPACT:")[1].split("SCORE:")[0].strip()
 
-        # ✅ FIXED SCORE USING REGEX
+        # robust score extraction
         score_match = re.search(r"\b\d{1,3}\b", result)
         score = score_match.group() if score_match else "N/A"
 
@@ -77,34 +78,6 @@ def parse_output(result):
 
     except:
         return result, "", "N/A", "N/A"
-
-
-# ---------- SIMPLE JUDGE ----------
-def judge_output(output):
-    score = 0
-    feedback = []
-
-    text = output.lower()
-
-    if "ingredient" in text:
-        score += 1
-    else:
-        feedback.append("Missing ingredient explanation")
-
-    if "health" in text:
-        score += 1
-    else:
-        feedback.append("Missing health impact")
-
-    if "verdict" in text:
-        score += 1
-    else:
-        feedback.append("Missing final verdict")
-
-    return {
-        "score": f"{score}/3",
-        "feedback": feedback if feedback else ["Good explanation"]
-    }
 
 
 # ---------- UI ----------
@@ -124,7 +97,10 @@ if st.button("Analyze"):
             result = generate_analysis(user_input)
 
         ingredient, health, score, verdict = parse_output(result)
-        judge = judge_output(result)
+
+        # 👇 LLM Judge (from separate agent)
+        with st.spinner("Evaluating quality..."):
+            judge = judge_output(result, client)
 
         st.success("Analysis Complete ✅")
 
@@ -148,8 +124,6 @@ if st.button("Analyze"):
 
         st.markdown("---")
 
-        # ---------- JUDGE ----------
-        st.markdown("### 🧠 Evaluation (Judge)")
-        st.write(f"Score: {judge['score']}")
-        for f in judge["feedback"]:
-            st.write(f"- {f}")
+        # ---------- JUDGE OUTPUT ----------
+        st.markdown("### 🧠 Evaluation (LLM Judge)")
+        st.info(judge)
