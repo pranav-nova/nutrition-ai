@@ -19,47 +19,46 @@ def get_api_key():
     return key
 
 api_key = get_api_key()
-
 if not api_key:
     st.error("❌ GROQ_API_KEY not found")
     st.stop()
 
 client = Groq(api_key=api_key)
 
-# ---------- ANALYSIS FUNCTION ----------
-def generate_analysis(ingredients, nutrition_text):
-
+# ---------- ANALYSIS ----------
+def generate_analysis(input_text):
     prompt = f"""
-You are a nutrition expert.
+You are a professional nutrition expert.
 
-Analyze this product:
+Analyze the following food label:
 
-Ingredients:
-{ingredients}
+{input_text}
 
-Nutrition Label:
-{nutrition_text}
+Return STRICTLY in this format:
 
-Give output clearly including:
-- Ingredient explanation
-- Health impact
-- Final verdict (Good / Moderate / Avoid)
+INGREDIENT BREAKDOWN:
+...
+
+HEALTH IMPACT:
+...
+
+SCORE:
+(number only)
+
+FINAL VERDICT:
+(Good / Moderate / Avoid)
 """
-
     res = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.4
     )
-
     return res.choices[0].message.content
-
 
 # ---------- SIMPLE JUDGE ----------
 def judge_output(output):
     score = 0
     feedback = []
-
     text = output.lower()
 
     if "ingredient" in text:
@@ -82,39 +81,64 @@ def judge_output(output):
         "feedback": feedback if feedback else ["Good explanation"]
     }
 
+# ---------- PARSER ----------
+def parse_output(result):
+    try:
+        parts = result.split("SCORE:")
+        top = parts[0]
+        score = parts[1].split("\n")[0].strip()
+
+        ingredient = top.split("INGREDIENT BREAKDOWN:")[1].split("HEALTH IMPACT:")[0].strip()
+        health = top.split("HEALTH IMPACT:")[1].strip()
+
+        verdict = result.split("FINAL VERDICT:")[1].strip()
+
+        return ingredient, health, score, verdict
+    except:
+        return result, "", "N/A", "N/A"
 
 # ---------- UI ----------
-st.title("🥗 Nutrition Label Analyzer")
+st.title("🥗 Nutrition AI Analyzer")
+st.caption("Paste full ingredients + nutrition label below.")
 
-st.markdown("Paste ingredients and nutrition facts to get analysis.")
+# ONE INPUT BOX
+user_input = st.text_area("Food Label Input")
 
-ingredients = st.text_area("🧾 Ingredients")
-nutrition_text = st.text_area("📊 Nutrition Facts")
-
-# ---------- BUTTON ----------
 if st.button("Analyze"):
 
-    if not ingredients or not nutrition_text:
-        st.warning("⚠️ Please fill both fields")
+    if not user_input:
+        st.warning("⚠️ Please enter food label data")
     else:
         with st.spinner("Analyzing..."):
-            result = generate_analysis(ingredients, nutrition_text)
+            result = generate_analysis(user_input)
 
-        # Judge
+        ingredient, health, score, verdict = parse_output(result)
         judge = judge_output(result)
 
-        # ---------- SINGLE OUTPUT BOX ----------
-        st.markdown("### 📦 Final Output")
+        st.success("Analysis Complete ✅")
 
-        st.text_area(
-            "Result + Evaluation",
-            f"""{result}
+        # ---------- PROFESSIONAL OUTPUT ----------
+        st.markdown("### 🧪 Ingredient Breakdown")
+        st.write(ingredient)
 
-------------------------
-Evaluation Score: {judge["score"]}
+        st.markdown("### ⚡ Health Impact")
+        st.write(health)
 
-Feedback:
-- {"\n- ".join(judge["feedback"])}
-""",
-            height=400
-        )
+        st.markdown("### 📊 Nutrition Score")
+        st.metric(label="Score", value=f"{score}/100")
+
+        st.markdown("### 🏁 Final Verdict")
+        if "good" in verdict.lower():
+            st.success(verdict)
+        elif "moderate" in verdict.lower():
+            st.warning(verdict)
+        else:
+            st.error(verdict)
+
+        st.markdown("---")
+
+        # ---------- JUDGE ----------
+        st.markdown("### 🧠 Evaluation (Judge)")
+        st.write(f"Score: {judge['score']}")
+        for f in judge["feedback"]:
+            st.write(f"- {f}")
