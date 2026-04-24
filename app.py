@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 # ---------- LOAD ENV ----------
 load_dotenv()
 
-st.set_page_config(page_title="Nutrition AI", page_icon="🥗", layout="centered")
+st.set_page_config(page_title="Nutrition Label Explainer", page_icon="🥗", layout="centered")
 
 # ---------- SAFE API KEYS ----------
 def get_key(name):
