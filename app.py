@@ -19,7 +19,6 @@ def get_api_key():
     return key
 
 api_key = get_api_key()
-
 if not api_key:
     st.error("❌ GROQ_API_KEY not found")
     st.stop()
@@ -29,19 +28,13 @@ client = Groq(api_key=api_key)
 def generate_analysis(input_text):
     prompt = f"""
 You are a professional nutrition expert.
-
 Analyze this food label:
-
 {input_text}
-
 Return STRICTLY in this format:
-
 INGREDIENT BREAKDOWN:
 ...
-
 HEALTH IMPACT:
 ...
-
 SCORE:
 Return ONLY a number between 0 and 100
 """
@@ -52,7 +45,6 @@ Return ONLY a number between 0 and 100
     )
     return res.choices[0].message.content
 
-
 def parse_output(result):
     try:
         ingredient = result.split("INGREDIENT BREAKDOWN:")[1].split("HEALTH IMPACT:")[0].strip()
@@ -62,7 +54,6 @@ def parse_output(result):
         return ingredient, health, score
     except:
         return result, "", "N/A"
-
 
 st.title("🥗 Nutrition AI Analyzer")
 st.caption("Paste full ingredients + nutrition label below.")
@@ -94,5 +85,24 @@ if st.button("Analyze"):
 
         st.markdown("---")
 
-        st.markdown("### 🧠 Professional Evaluation & Clinical Conclusion")
-        st.info(judge)
+        st.markdown("### 🧠 Final Verdict")
+        st.markdown(
+            f"""
+            <div style="
+                background: linear-gradient(135deg, #0f2a1a 0%, #1a3a2a 100%);
+                border: 1px solid #2d6a4f;
+                border-left: 4px solid #52b788;
+                border-radius: 10px;
+                padding: 1.5rem 1.75rem;
+                font-family: 'Courier New', monospace;
+                color: #d8f3dc;
+                white-space: pre-wrap;
+                line-height: 1.75;
+                font-size: 0.875rem;
+                box-shadow: 0 4px 20px rgba(82, 183, 136, 0.08);
+            ">
+{judge}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
