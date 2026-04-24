@@ -192,7 +192,9 @@ The Judge Agent evaluates output based on:
 | **Total**            | **100** |
 
 ---
+## 🚀 Live Demo
 
+[👉 Launch Nutrition AI App](https://pranav-nova-nutrition-ai-app-dlypir.streamlit.app/)
 ## 🎥 Demo
 
 👉 *(Add your Loom video link here)*
